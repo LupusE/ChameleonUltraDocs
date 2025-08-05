@@ -6,45 +6,41 @@ It requires at least **Python 3.9** version.
 
 ## Installing
 
-There are multiple ways to install the CLI, depending on your OS.
+The way to install the CLI is depending on your OS.
 
 ### Windows
 
-Windows users have the choice of 4 options:
+For Windows there are 4 options:
 
 #### ProxSpace
 
 Using ProxSpace to build the CLI is the easiest and most comfortable way to get started.
 
-1. Download ProxSpace from the [official GitHub](https://github.com/Gator96100/ProxSpace/releases/latest)
+1. Get the latest release of ProxSpace from the [official GitHub](https://github.com/Gator96100/ProxSpace/releases/latest)
 
-2. [Download 7zip](https://www.7-zip.org/) to extract the archive
+2. Extract the archive, for example with [7zip](https://www.7-zip.org/)
 
-3. Install 7zip by double clicking the Installer and clicking `Install`
+3. Open the ProxSpace folder in a terminal. For example by right-click on the folder and select `Open in Terminal`. If that option is not visible and the ProxSpace folder is still in your downloads folder, press `win+r` and type `powershell` followed by enter. In Powershell now type `cd ~/Downloads/ProxSpace`
 
-4. Right-click on the downloaded archive and select `7zip -> Unpack to "ProxSpace"`
+4. Run the command `.\runme64.bat`. After successful completion, you should be dropped to the `pm3 ~ $` shell.
 
-5. Open a terminal in the proxspace folder. If you are on a new Windows install, you should be able to just right-click and select `Open in Terminal`. If that option is not visible and the ProxSpace folder is still in your downloads folder, press `win+r` and type `powershell` followed by enter. In Powershell now type `cd ~/Downloads/ProxSpace`
+5. Clone the repository by typing `git clone https://github.com/RfidResearchGroup/ChameleonUltra.git`
 
-6. Run the command `.\runme64.bat`. After successful completion, you should be dropped to the `pm3 ~ $` shell.
+6. Now go into the new folder with `cd ChameleonUltra/software/src`
 
-7. Clone the Repository by typing `git clone https://github.com/RfidResearchGroup/ChameleonUltra.git`
+7. Prepare for package installation with `pacman-key --init; pacman-key --populate; pacman -S msys2-keyring --noconfirm; pacman-key --refresh`
 
-8. Now go into the newly created folder with `cd ChameleonUltra/software/src`
+8. Proceed by installing **ninja** with `pacman -S ninja --noconfirm`
 
-9. Prepare for package installation with `pacman-key --init; pacman-key --populate; pacman -S msys2-keyring --noconfirm; pacman-key --refresh`
+9. Build the required config by running `cmake .`
 
-10. Proceed by installing Ninja with `pacman -S ninja --noconfirm`
+10. And the binaries with `cmake --build .`
 
-11. Build the required config by running `cmake .`
+11. Go into the script folder with `cd ~/ChameleonUltra/software/script/`
 
-12. And the binaries with `cmake --build .`
+12. Install python requirements with `pip install -r requirements.txt`
 
-13. Go into the script folder with `cd ~/ChameleonUltra/software/script/`
-
-14. Install python requirements with `pip install -r requirements.txt`
-
-15. Finally run the CLI with `python chameleon_cli_main.py`
+13. Finally run the CLI with `python chameleon_cli_main.py`
 
 To use after installing, just do the following:
 
@@ -64,7 +60,7 @@ Coming Soon
 
 #### Build Natively
 
-Building natively is a bit more advanced and not recommended for beginners
+Building natively is more advanced and not recommended for beginners
 
 1. Download and install [Visual Studio Community](https://visualstudio.microsoft.com/de/downloads/)
 
@@ -105,7 +101,7 @@ To run again after installing, just do the following:
 ### MacOS
 
 Requires [Homebrew](https://brew.sh/) to be installed.
-  - If you don't have Homebrew installed on your macOS, open the Terminal and run: 
+  - To install Homebrew on macOS, open a Terminal and run: 
   `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
 
 See Linux/Macos instructions below for the rest.
@@ -157,16 +153,48 @@ deactivate
 
 ## Usage
 
-When in the CLI, plug in your Chameleon and connect with `hw connect`. If autodetection fails, get the Serial Port used by your Chameleon and run `hw connect -p COM11` (Replace `COM11` with your serial port, on Linux it may be `/dev/ttyACM0`)
+When in the CLI, plug in your Chameleon and connect with `hw connect`.  
+If autodetection fails, set the serial port of the Chameleon with `hw connect -p COM11` (Replace `COM11` with your serial port, on Linux it may be `/dev/ttyACM0`)
+
+### General usage
+
+Connect the Chameleon Ultra and show slots with configuration
+```sh
+hw connect
+hw slot list
+```
+
+Enable lf for slot 4 and change to the slot
+```sh
+hw slot enable --slot 4 --hf
+hw slot change -s 4
+```
+
+### Write data on card
+
+Sometimes the emulation direct on the CU is still unreliable. But for supported protocols, you can write the data on a T5577 card
+```sh
+lf hid prox write --fc 3210 --cn 1234 --format IND27
+```
+
+And verify the result by reading the T5577 card
+```sh
+lf hid prox read
+```
+With the Result
+```
+HIDProx/Indala 27-bit
+ FC: 3210
+ CN: 1234
+```
+
+
 
 ### MFKEY32v2 walk-through
+
 Make sure to be in the `software/` directory and run the Python CLI from there.
 
 ```sh
-# Connect to the CLI
-hw connect
-# Check which slot can be used
-hw slot list
 # Change the slot type, here using slot 8 for a MFC 1k emulation
 hw slot type -s 8 -t MIFARE_1024
 # Init the slot content
@@ -194,7 +222,8 @@ hf mf elog --decrypt
 # Clean the logged detection nonces
 hf mf econfig --disable-log
 ```
-  Output example:
+
+Output example:
 ```
  - MF1 detection log count = 6, start download.
  - Download done (144bytes), start parse and decrypt
